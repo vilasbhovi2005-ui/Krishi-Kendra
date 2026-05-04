@@ -25,7 +25,7 @@ async function createUser(req, res) {
     });
 
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "1d" });
-    res.cookie("token", token);
+    res.cookie("token", token, { httpOnly: true, secure: true, sameSite: 'none' });
 
     res.status(201).json({
         message: "User registered successfully", user: {
@@ -57,7 +57,7 @@ async function loginUser(req, res) {
         }
 
         const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "1d" });
-        res.cookie("token", token);
+        res.cookie("token", token, { httpOnly: true, secure: true, sameSite: 'none' });
         res.status(200).json({
             message: "Login successful", user: {
                 _id: user._id,
@@ -75,7 +75,7 @@ async function loginUser(req, res) {
 }
 
 function logoutUser(req, res) {
-    res.clearCookie("token");
+    res.clearCookie("token", { httpOnly: true, secure: true, sameSite: 'none' });
     res.status(200).json({ message: "Logout successful" });
 }
 
