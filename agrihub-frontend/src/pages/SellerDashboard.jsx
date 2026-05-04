@@ -20,7 +20,7 @@ const SellerDashboard = () => {
 
   const fetchMyProducts = async () => {
     try {
-      const res = await axios.get('http://localhost:3000/api/products/seller/myproducts', {
+      const res = await axios.get('/api/products/seller/myproducts', {
          // Using cookie based auth implies we might need to send credentials or pass token
       });
       setProducts(res.data);
@@ -42,7 +42,7 @@ const SellerDashboard = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:3000/api/products', formData);
+      await axios.post('/api/products', formData);
       setShowForm(false);
       fetchMyProducts();
       setFormData({ title: '', description: '', price: '', category: 'Seeds', stock: '', image: '' });
@@ -55,7 +55,7 @@ const SellerDashboard = () => {
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this product?')) {
       try {
-        await axios.delete(`http://localhost:3000/api/products/${id}`);
+        await axios.delete(`/api/products/${id}`);
         fetchMyProducts();
       } catch (error) {
         console.error('Error deleting product', error);

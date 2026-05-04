@@ -22,7 +22,7 @@ const Cart = () => {
     setPlacingOrder(true);
     try {
       const items = cartItems.map(item => ({ product: item.product._id, quantity: item.quantity }));
-      await axios.post('http://localhost:3000/api/orders', { items, shippingAddress }, {
+      await axios.post('/api/orders', { items, shippingAddress }, {
         headers: { Authorization: `Bearer ${document.cookie.replace(/(?:(?:^|.*;\s*)token\s*\=\s*([^;]*).*$)|^.*$/, "$1")}` } // In reality, handle token better
       });
       setOrderSuccess(true);

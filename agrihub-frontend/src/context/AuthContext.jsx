@@ -18,7 +18,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      const res = await axios.post('http://localhost:3000/api/users/login', { email, password });
+      const res = await axios.post('/api/users/login', { email, password });
       setUser(res.data.user);
       localStorage.setItem('user', JSON.stringify(res.data.user));
       // Token is set as HTTP-only cookie by backend, but we also might need it locally if it wasn't.
@@ -30,7 +30,7 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (userData) => {
     try {
-      const res = await axios.post('http://localhost:3000/api/users/register', userData);
+      const res = await axios.post('/api/users/register', userData);
       setUser(res.data.user);
       localStorage.setItem('user', JSON.stringify(res.data.user));
       return { success: true };
@@ -41,7 +41,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     try {
-      await axios.get('http://localhost:3000/api/logout');
+      await axios.get('/api/logout');
       setUser(null);
       localStorage.removeItem('user');
     } catch (error) {

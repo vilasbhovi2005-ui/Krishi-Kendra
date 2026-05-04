@@ -12,7 +12,7 @@ const Home = () => {
   const fetchProducts = async () => {
     setLoading(true);
     try {
-      let url = 'http://localhost:3000/api/products?';
+      let url = '/api/products?';
       if (search) url += `search=${search}&`;
       if (category) url += `category=${category}`;
       const res = await axios.get(url);
