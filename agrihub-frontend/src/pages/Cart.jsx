@@ -37,7 +37,7 @@ const Cart = () => {
 
   if (orderSuccess) {
     return (
-      <div className="container" style={{ textAlign: 'center', padding: '4rem 0' }}>
+      <div className="container" style={{ textAlign: 'center', padding: 'var(--hero-padding, 4rem) 0' }}>
         <div style={{ display: 'inline-block', background: 'var(--primary)', color: 'white', padding: '1rem', borderRadius: '50%', marginBottom: '1.5rem' }}>
           <ShoppingBag size={48} />
         </div>
@@ -63,9 +63,9 @@ const Cart = () => {
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2">
-          <div className="card" style={{ padding: '1.5rem' }}>
+          <div className="card" style={{ padding: 'var(--cart-padding, 1.5rem)' }}>
             {cartItems.map(item => (
-              <div key={item.product._id} style={{ display: 'flex', gap: '1.5rem', padding: '1.5rem 0', borderBottom: '1px solid var(--border)' }}>
+              <div key={item.product._id} style={{ display: 'flex', flexWrap: 'wrap', gap: '1.5rem', padding: '1.5rem 0', borderBottom: '1px solid var(--border)' }}>
                 <img src={item.product.image} alt={item.product.title} style={{ width: '100px', height: '100px', objectFit: 'cover', borderRadius: 'var(--radius-md)' }} />
                 <div style={{ flex: 1 }}>
                   <h3 style={{ fontSize: '1.1rem', fontWeight: 600, marginBottom: '0.25rem' }}>{item.product.title}</h3>
@@ -91,7 +91,7 @@ const Cart = () => {
         </div>
 
         <div>
-          <div className="card" style={{ padding: '1.5rem', position: 'sticky', top: '5rem' }}>
+          <div className="card" style={{ padding: 'var(--cart-padding, 1.5rem)', position: 'sticky', top: '5rem' }}>
             <h3 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '1.5rem', borderBottom: '1px solid var(--border)', paddingBottom: '1rem' }}>Order Summary</h3>
             
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>

@@ -194,3 +194,48 @@ a {
   -webkit-backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.18);
 }
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .flex-col-mobile {
+    flex-direction: column !important;
+  }
+  
+  .hidden-mobile {
+    display: none !important;
+  }
+
+  .block-mobile {
+    display: block !important;
+  }
+
+  .flex-mobile {
+    display: flex !important;
+  }
+
+  .container {
+    padding: 0 0.75rem;
+  }
+
+  .nav-container {
+    padding: 0;
+  }
+  
+  h1 {
+    font-size: 1.75rem !important;
+  }
+
+  h2 {
+    font-size: 1.5rem !important;
+  }
+
+  :root {
+    --hero-padding: 1.5rem;
+    --detail-padding: 1.5rem;
+    --detail-img-height: 250px;
+    --cart-padding: 1rem;
+    --dashboard-padding: 1rem;
+    --empty-padding: 1.5rem;
+    --auth-padding: 1.5rem;
+  }
+}

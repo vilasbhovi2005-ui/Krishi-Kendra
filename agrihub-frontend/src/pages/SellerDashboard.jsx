@@ -65,7 +65,7 @@ const SellerDashboard = () => {
 
   return (
     <div className="container">
-      <div className="flex justify-between items-center" style={{ marginBottom: '2rem' }}>
+      <div className="flex justify-between items-center flex-col-mobile" style={{ marginBottom: '2rem', gap: '1rem' }}>
         <h1 style={{ fontSize: '2rem', fontWeight: 800 }}>Seller Dashboard</h1>
         <button onClick={() => setShowForm(!showForm)} className="btn btn-primary">
           <PackagePlus size={20} /> Add New Product
@@ -73,7 +73,7 @@ const SellerDashboard = () => {
       </div>
 
       {showForm && (
-        <div className="card" style={{ padding: '2rem', marginBottom: '2rem', background: '#f8faf9' }}>
+        <div className="card" style={{ padding: 'var(--dashboard-padding, 2rem)', marginBottom: '2rem', background: '#f8faf9' }}>
           <h2 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '1.5rem' }}>Add New Product</h2>
           <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="form-group">
@@ -120,7 +120,7 @@ const SellerDashboard = () => {
         {loading ? (
           <p>Loading your products...</p>
         ) : products.length === 0 ? (
-          <div className="card" style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-muted)' }}>
+          <div className="card" style={{ padding: 'var(--empty-padding, 3rem)', textAlign: 'center', color: 'var(--text-muted)' }}>
             <p>You haven't added any products yet.</p>
           </div>
         ) : (

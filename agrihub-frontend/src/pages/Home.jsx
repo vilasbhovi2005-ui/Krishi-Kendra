@@ -36,7 +36,7 @@ const Home = () => {
   return (
     <div className="container">
       {/* Hero Banner */}
-      <div className="card flex items-center justify-between" style={{ background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%)', color: 'white', padding: '3rem', marginBottom: '2rem' }}>
+      <div className="card flex items-center justify-between flex-col-mobile" style={{ background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%)', color: 'white', padding: 'var(--hero-padding, 3rem)', marginBottom: '2rem' }}>
         <div style={{ maxWidth: '600px' }}>
           <h1 style={{ fontSize: '2.5rem', fontWeight: 800, marginBottom: '1rem' }}>Everything for your farm, in one place.</h1>
           <p style={{ fontSize: '1.1rem', opacity: 0.9, marginBottom: '2rem' }}>Quality seeds, reliable fertilizers, and modern machinery directly from verified sellers to your farm.</p>
@@ -44,7 +44,7 @@ const Home = () => {
       </div>
 
       {/* Filters and Search */}
-      <div className="card" style={{ padding: '1rem', marginBottom: '2rem', display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div className="card flex-col-mobile" style={{ padding: '1rem', marginBottom: '2rem', display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between' }}>
         <div className="flex items-center gap-2">
           <Filter size={20} color="var(--text-muted)"/>
           <select className="form-select" value={category} onChange={e => setCategory(e.target.value)} style={{ padding: '0.5rem', width: '200px' }}>
@@ -57,7 +57,7 @@ const Home = () => {
           </select>
         </div>
 
-        <form onSubmit={handleSearchSubmit} className="flex" style={{ flex: 1, maxWidth: '500px' }}>
+        <form onSubmit={handleSearchSubmit} className="flex" style={{ flex: 1, width: '100%', maxWidth: '500px' }}>
           <input 
             type="text" 
             className="form-input" 

@@ -54,11 +54,11 @@ const ProductDetail = () => {
       </button>
 
       <div className="card grid grid-cols-1 md:grid-cols-2" style={{ padding: 0, overflow: 'hidden' }}>
-        <div style={{ height: '100%', minHeight: '400px', background: '#f9f9f9' }}>
+        <div style={{ height: '100%', minHeight: 'var(--detail-img-height, 400px)', background: '#f9f9f9' }}>
           <img src={product.image} alt={product.title} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
         </div>
         
-        <div style={{ padding: '3rem' }}>
+        <div style={{ padding: 'var(--detail-padding, 3rem)' }}>
           <div style={{ fontSize: '0.9rem', color: 'var(--primary)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '1rem' }}>
             {product.category}
           </div>

@@ -32,7 +32,7 @@ const Register = () => {
 
   return (
     <div className="container flex justify-center items-center" style={{ minHeight: '80vh' }}>
-      <div className="card" style={{ width: '100%', maxWidth: '450px', padding: '2rem' }}>
+      <div className="card" style={{ width: '100%', maxWidth: '450px', padding: 'var(--auth-padding, 2rem)' }}>
         <div className="flex flex-col items-center gap-2" style={{ marginBottom: '2rem' }}>
           <Leaf color="var(--primary)" size={48} />
           <h2 style={{ fontSize: '1.5rem', fontWeight: 700 }}>Create an Account</h2>
