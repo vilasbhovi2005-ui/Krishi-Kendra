@@ -90,8 +90,43 @@ const getOrderById = async (req, res) => {
   }
 };
 
+// @desc    Get orders for seller's products
+// @route   GET /api/orders/seller/myorders
+// @access  Private
+const getSellerOrders = async (req, res) => {
+  try {
+    // Find all products owned by the seller
+    const myProducts = await ProductModel.find({ seller: req.user._id }).select('_id');
+    const productIds = myProducts.map(p => p._id);
+
+    // Find orders that contain any of these products
+    const orders = await OrderModel.find({ 'items.product': { $in: productIds } })
+      .populate('buyer', 'fullName email')
+      .populate('items.product', 'title image price seller')
+      .sort({ createdAt: -1 });
+
+    // Filter order items to only include the seller's products and calculate seller's total
+    const sellerOrders = orders.map(order => {
+      const orderObj = order.toObject();
+      orderObj.items = orderObj.items.filter(item => 
+        item.product.seller && item.product.seller.toString() === req.user._id.toString()
+      );
+      
+      // Calculate total amount for this seller's products in the order
+      orderObj.sellerTotal = orderObj.items.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+      
+      return orderObj;
+    });
+
+    res.json(sellerOrders);
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error fetching seller orders', error: error.message });
+  }
+};
+
 module.exports = {
   createOrder,
   getMyOrders,
-  getOrderById
+  getOrderById,
+  getSellerOrders
 };

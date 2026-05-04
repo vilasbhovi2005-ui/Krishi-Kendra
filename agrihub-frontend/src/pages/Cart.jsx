@@ -22,7 +22,7 @@ const Cart = () => {
     setPlacingOrder(true);
     try {
       const items = cartItems.map(item => ({ product: item.product._id, quantity: item.quantity }));
-      await axios.post('/api/orders', { items, shippingAddress }, {
+      await axios.post('/api/orders', { items, shippingAddress, paymentMethod: 'Cash on Delivery' }, {
         headers: { Authorization: `Bearer ${document.cookie.replace(/(?:(?:^|.*;\s*)token\s*\=\s*([^;]*).*$)|^.*$/, "$1")}` } // In reality, handle token better
       });
       setOrderSuccess(true);
@@ -118,7 +118,7 @@ const Cart = () => {
               </div>
               
               <button type="submit" className="btn btn-primary" style={{ width: '100%', padding: '1rem', fontSize: '1.1rem' }} disabled={placingOrder}>
-                {placingOrder ? 'Processing...' : `Pay $${(cartTotal + 10).toFixed(2)}`}
+                {placingOrder ? 'Processing...' : `Place Order (Cash on Delivery) - $${(cartTotal + 10).toFixed(2)}`}
               </button>
             </form>
           </div>

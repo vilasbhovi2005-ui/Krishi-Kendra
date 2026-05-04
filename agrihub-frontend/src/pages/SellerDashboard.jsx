@@ -8,6 +8,10 @@ const SellerDashboard = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
+  const [orders, setOrders] = useState([]);
+  const [ordersLoading, setOrdersLoading] = useState(true);
+  const [editingStockId, setEditingStockId] = useState(null);
+  const [newStockValue, setNewStockValue] = useState('');
   
   const [formData, setFormData] = useState({
     title: '',
@@ -31,8 +35,20 @@ const SellerDashboard = () => {
     }
   };
 
+  const fetchMyOrders = async () => {
+    try {
+      const res = await axios.get('/api/orders/seller/myorders');
+      setOrders(res.data);
+    } catch (error) {
+      console.error('Error fetching orders', error);
+    } finally {
+      setOrdersLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchMyProducts();
+    fetchMyOrders();
   }, []);
 
   const handleChange = (e) => {
@@ -60,6 +76,17 @@ const SellerDashboard = () => {
       } catch (error) {
         console.error('Error deleting product', error);
       }
+    }
+  };
+
+  const handleUpdateStock = async (id) => {
+    try {
+      await axios.put(`/api/products/${id}`, { stock: Number(newStockValue) });
+      setEditingStockId(null);
+      fetchMyProducts();
+    } catch (error) {
+      console.error('Error updating stock', error);
+      alert('Failed to update stock');
     }
   };
 
@@ -144,7 +171,31 @@ const SellerDashboard = () => {
                     </td>
                     <td style={{ padding: '1rem' }}>{product.category}</td>
                     <td style={{ padding: '1rem' }}>${product.price.toFixed(2)}</td>
-                    <td style={{ padding: '1rem' }}>{product.stock}</td>
+                    <td style={{ padding: '1rem' }}>
+                      {editingStockId === product._id ? (
+                        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                          <input 
+                            type="number" 
+                            className="form-input" 
+                            style={{ width: '70px', padding: '0.25rem' }} 
+                            value={newStockValue} 
+                            onChange={e => setNewStockValue(e.target.value)} 
+                            min="0" 
+                          />
+                          <button onClick={() => handleUpdateStock(product._id)} className="btn btn-primary" style={{ padding: '0.25rem 0.5rem', fontSize: '0.8rem' }}>Save</button>
+                          <button onClick={() => setEditingStockId(null)} className="btn btn-outline" style={{ padding: '0.25rem 0.5rem', fontSize: '0.8rem' }}>Cancel</button>
+                        </div>
+                      ) : (
+                        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                          <span style={{ color: product.stock === 0 ? 'var(--danger)' : 'inherit', fontWeight: product.stock === 0 ? 700 : 400 }}>
+                            {product.stock} {product.stock === 0 && '(Out of Stock)'}
+                          </span>
+                          <button onClick={() => { setEditingStockId(product._id); setNewStockValue(product.stock); }} style={{ background: 'none', border: 'none', color: 'var(--primary)', cursor: 'pointer', padding: '0.2rem' }} title="Update Stock">
+                            <Edit size={16} />
+                          </button>
+                        </div>
+                      )}
+                    </td>
                     <td style={{ padding: '1rem', textAlign: 'right' }}>
                       <button onClick={() => handleDelete(product._id)} style={{ background: 'none', border: 'none', color: 'var(--danger)', cursor: 'pointer', padding: '0.5rem' }}>
                         <Trash2 size={18} />
@@ -154,6 +205,74 @@ const SellerDashboard = () => {
                 ))}
               </tbody>
             </table>
+          </div>
+        )}
+      </div>
+      <div style={{ marginTop: '3rem' }}>
+        <h2 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '1.5rem' }}>Customer Orders</h2>
+        {ordersLoading ? (
+          <p>Loading orders...</p>
+        ) : orders.length === 0 ? (
+          <div className="card" style={{ padding: 'var(--empty-padding, 3rem)', textAlign: 'center', color: 'var(--text-muted)' }}>
+            <p>You have no customer orders yet.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-6">
+            {orders.map(order => (
+              <div key={order._id} className="card" style={{ padding: '1.5rem' }}>
+                <div className="flex justify-between items-center" style={{ borderBottom: '1px solid var(--border)', paddingBottom: '1rem', marginBottom: '1rem' }}>
+                  <div>
+                    <h3 style={{ fontSize: '1.1rem', fontWeight: 700 }}>Order ID: {order._id.substring(order._id.length - 8)}</h3>
+                    <div style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>{new Date(order.createdAt).toLocaleDateString()}</div>
+                  </div>
+                  <div style={{ background: 'rgba(46, 125, 50, 0.1)', color: 'var(--primary)', padding: '0.25rem 0.75rem', borderRadius: 'var(--radius-full)', fontSize: '0.875rem', fontWeight: 600 }}>
+                    {order.status}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6" style={{ marginBottom: '1.5rem' }}>
+                  <div>
+                    <h4 style={{ fontWeight: 600, marginBottom: '0.5rem', fontSize: '0.9rem', textTransform: 'uppercase', color: 'var(--text-muted)' }}>Customer Details</h4>
+                    <p style={{ fontWeight: 500 }}>{order.buyer?.fullName}</p>
+                    <p style={{ color: 'var(--text-muted)', marginBottom: '0.5rem' }}>{order.buyer?.email}</p>
+                    
+                    <h4 style={{ fontWeight: 600, marginBottom: '0.25rem', marginTop: '1rem', fontSize: '0.9rem', textTransform: 'uppercase', color: 'var(--text-muted)' }}>Shipping Address</h4>
+                    <p style={{ lineHeight: 1.5 }}>
+                      {order.shippingAddress?.street}<br />
+                      {order.shippingAddress?.city}, {order.shippingAddress?.state} {order.shippingAddress?.zipCode}
+                    </p>
+                  </div>
+                  <div>
+                    <h4 style={{ fontWeight: 600, marginBottom: '0.5rem', fontSize: '0.9rem', textTransform: 'uppercase', color: 'var(--text-muted)' }}>Payment Info</h4>
+                    <p style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 500 }}>
+                      <span style={{ color: 'var(--primary)' }}>•</span> {order.paymentMethod || 'Cash on Delivery'}
+                    </p>
+                    <div style={{ marginTop: '1rem', padding: '1rem', background: 'var(--background)', borderRadius: 'var(--radius-md)' }}>
+                      <div style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginBottom: '0.25rem' }}>Your Earnings for this Order</div>
+                      <div style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--primary-dark)' }}>${order.sellerTotal?.toFixed(2)}</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h4 style={{ fontWeight: 600, marginBottom: '0.75rem', fontSize: '0.9rem', textTransform: 'uppercase', color: 'var(--text-muted)' }}>Products Ordered</h4>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                    {order.items.map(item => (
+                      <div key={item._id} style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.75rem', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)' }}>
+                        <img src={item.product?.image} alt={item.product?.title} style={{ width: '50px', height: '50px', objectFit: 'cover', borderRadius: '4px' }} />
+                        <div style={{ flex: 1 }}>
+                          <div style={{ fontWeight: 500 }}>{item.product?.title}</div>
+                          <div style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Qty: {item.quantity} × ${item.price.toFixed(2)}</div>
+                        </div>
+                        <div style={{ fontWeight: 700 }}>
+                          ${(item.quantity * item.price).toFixed(2)}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         )}
       </div>

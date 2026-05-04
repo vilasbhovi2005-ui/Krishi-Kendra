@@ -32,11 +32,11 @@ const Navbar = () => {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', height: '4rem' }}>
           <Link to="/" className="logo" onClick={closeMenu}>
             <Leaf color="var(--primary)" size={28} />
-            AgriHub
+            Krishi-Kendra
           </Link>
 
-          <button 
-            className="btn block-mobile" 
+          <button
+            className="btn block-mobile"
             style={{ display: 'none', background: 'transparent', padding: '0.5rem' }}
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           >
@@ -49,27 +49,27 @@ const Navbar = () => {
               <>
                 {user.role === 'seller' && (
                   <Link to="/dashboard" className="btn btn-outline">
-                    <Package size={20}/> Dashboard
+                    <Package size={20} /> Dashboard
                   </Link>
                 )}
                 {user.role === 'farmer' && (
-                  <Link to="/cart" className="btn btn-primary" style={{position: 'relative'}}>
-                    <ShoppingCart size={20}/> Cart
+                  <Link to="/cart" className="btn btn-primary" style={{ position: 'relative' }}>
+                    <ShoppingCart size={20} /> Cart
                     {cartItems.length > 0 && (
                       <span style={{
-                        position: 'absolute', top: '-5px', right: '-5px', 
+                        position: 'absolute', top: '-5px', right: '-5px',
                         background: 'var(--danger)', color: 'white', borderRadius: '50%',
-                        width: '20px', height: '20px', display: 'flex', alignItems: 'center', 
+                        width: '20px', height: '20px', display: 'flex', alignItems: 'center',
                         justifyContent: 'center', fontSize: '12px', fontWeight: 'bold'
                       }}>{cartItems.length}</span>
                     )}
                   </Link>
                 )}
-                <div className="flex items-center gap-4 ml-4" style={{ borderLeft: '1px solid var(--border)', paddingLeft: '1rem'}}>
-                  <span style={{fontWeight: 500, color: 'var(--text-main)'}}>
+                <div className="flex items-center gap-4 ml-4" style={{ borderLeft: '1px solid var(--border)', paddingLeft: '1rem' }}>
+                  <span style={{ fontWeight: 500, color: 'var(--text-main)' }}>
                     {user.fullName} ({user.role})
                   </span>
-                  <button onClick={handleLogout} className="btn btn-outline" style={{padding: '0.4rem'}}>
+                  <button onClick={handleLogout} className="btn btn-outline" style={{ padding: '0.4rem' }}>
                     <LogOut size={18} />
                   </button>
                 </div>
@@ -86,7 +86,7 @@ const Navbar = () => {
         {/* Mobile Menu Dropdown */}
         {isMobileMenuOpen && (
           <div className="flex-col-mobile block-mobile" style={{
-            position: 'absolute', top: '100%', left: 0, right: 0, 
+            position: 'absolute', top: '100%', left: 0, right: 0,
             background: 'var(--surface)', borderTop: '1px solid var(--border)',
             padding: '1rem', boxShadow: 'var(--shadow-md)', display: 'none', gap: '1rem', zIndex: 100
           }}>
@@ -95,16 +95,16 @@ const Navbar = () => {
               <>
                 {user.role === 'seller' && (
                   <Link to="/dashboard" className="btn btn-outline" style={{ justifyContent: 'flex-start' }} onClick={closeMenu}>
-                    <Package size={20}/> Dashboard
+                    <Package size={20} /> Dashboard
                   </Link>
                 )}
                 {user.role === 'farmer' && (
                   <Link to="/cart" className="btn btn-primary" style={{ justifyContent: 'flex-start' }} onClick={closeMenu}>
-                    <ShoppingCart size={20}/> Cart ({cartItems.length})
+                    <ShoppingCart size={20} /> Cart ({cartItems.length})
                   </Link>
                 )}
                 <div style={{ padding: '0.5rem 1rem', background: 'var(--background)', borderRadius: 'var(--radius-md)' }}>
-                  <span style={{fontWeight: 500, display: 'block', marginBottom: '0.5rem'}}>
+                  <span style={{ fontWeight: 500, display: 'block', marginBottom: '0.5rem' }}>
                     {user.fullName} ({user.role})
                   </span>
                   <button onClick={handleLogout} className="btn btn-outline" style={{ width: '100%' }}>

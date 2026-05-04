@@ -35,6 +35,10 @@ const orderSchema = new mongoose.Schema({
     state: String,
     zipCode: String
   },
+  paymentMethod: {
+    type: String,
+    default: 'Cash on Delivery'
+  },
   status: {
     type: String,
     enum: ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'],

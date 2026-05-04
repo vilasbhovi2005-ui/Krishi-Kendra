@@ -14,6 +14,9 @@ const getProducts = async (req, res) => {
     if (search) {
       query.title = { $regex: search, $options: 'i' };
     }
+    
+    // Hide out-of-stock products from the public feed
+    query.stock = { $gt: 0 };
 
     const products = await ProductModel.find(query).populate('seller', 'fullName username');
     res.json(products);
