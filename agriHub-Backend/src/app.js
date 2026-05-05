@@ -18,8 +18,11 @@ app.use(cors({ origin: [process.env.FRONTEND_URL, 'https://krishi-kendra.vercel.
 
 connectDB();
 
+const paymentRoutes = require('./routes/payment.route');
+
 app.use('/api', userRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
+app.use('/api/payment', paymentRoutes);
 
 module.exports = app;
