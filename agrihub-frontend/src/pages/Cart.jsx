@@ -5,6 +5,16 @@ import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Trash2, ShoppingBag } from 'lucide-react';
 
+const loadScript = (src) => {
+  return new Promise((resolve) => {
+    const script = document.createElement("script");
+    script.src = src;
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+};
+
 const Cart = () => {
   const { cartItems, removeFromCart, updateQuantity, clearCart, cartTotal } = useContext(CartContext);
   const { user } = useContext(AuthContext);
@@ -14,16 +24,20 @@ const Cart = () => {
   const [orderSuccess, setOrderSuccess] = useState(false);
 
   const handleCheckout = async (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
     if (!user) {
       navigate('/login');
+      return;
+    }
+    if (!shippingAddress.street || !shippingAddress.city || !shippingAddress.state || !shippingAddress.zipCode) {
+      alert("Please fill in your shipping details.");
       return;
     }
     setPlacingOrder(true);
     try {
       const items = cartItems.map(item => ({ product: item.product._id, quantity: item.quantity }));
       await axios.post('/api/orders', { items, shippingAddress, paymentMethod: 'Cash on Delivery' }, {
-        headers: { Authorization: `Bearer ${document.cookie.replace(/(?:(?:^|.*;\s*)token\s*\=\s*([^;]*).*$)|^.*$/, "$1")}` } // In reality, handle token better
+        headers: { Authorization: `Bearer ${document.cookie.replace(/(?:(?:^|.*;\s*)token\s*\=\s*([^;]*).*$)|^.*$/, "$1")}` }
       });
       setOrderSuccess(true);
       clearCart();
@@ -32,6 +46,105 @@ const Cart = () => {
       alert('Failed to place order. Check console.');
     } finally {
       setPlacingOrder(false);
+    }
+  };
+
+  const handleRazorpayCheckout = async (e) => {
+    if (e) e.preventDefault();
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+    if (!shippingAddress.street || !shippingAddress.city || !shippingAddress.state || !shippingAddress.zipCode) {
+      alert("Please fill in your shipping details.");
+      return;
+    }
+    
+    setPlacingOrder(true);
+    try {
+      const res = await loadScript("https://checkout.razorpay.com/v1/checkout.js");
+      if (!res) {
+        alert("Razorpay SDK failed to load. Are you online?");
+        setPlacingOrder(false);
+        return;
+      }
+
+      // Create Order on Backend
+      const result = await axios.post("/api/payment/create-order", {
+        amount: cartTotal + 10 // Total with shipping
+      }, {
+        headers: { Authorization: `Bearer ${document.cookie.replace(/(?:(?:^|.*;\s*)token\s*\=\s*([^;]*).*$)|^.*$/, "$1")}` }
+      });
+
+      if (!result.data) {
+        alert("Server error. Please try again.");
+        setPlacingOrder(false);
+        return;
+      }
+
+      const { amount, id: order_id, currency } = result.data;
+
+      const options = {
+        key: import.meta.env.VITE_RAZER_KEY || 'rzp_test_SlgmvRNGaG2SFH',
+        amount: amount.toString(),
+        currency: currency,
+        name: "Krishi-Kendra",
+        description: "AgriStore Checkout",
+        order_id: order_id,
+        handler: async function (response) {
+          try {
+            const data = {
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+            };
+
+            // Verify Payment
+            const verifyRes = await axios.post("/api/payment/verify-payment", data, {
+              headers: { Authorization: `Bearer ${document.cookie.replace(/(?:(?:^|.*;\s*)token\s*\=\s*([^;]*).*$)|^.*$/, "$1")}` }
+            });
+
+            if (verifyRes.data.message === 'Payment verified successfully') {
+              // Finalize order
+              const items = cartItems.map(item => ({ product: item.product._id, quantity: item.quantity }));
+              await axios.post('/api/orders', { 
+                items, 
+                shippingAddress, 
+                paymentMethod: 'Razorpay',
+                razorpayOrderId: response.razorpay_order_id,
+                razorpayPaymentId: response.razorpay_payment_id,
+                razorpaySignature: response.razorpay_signature
+              }, {
+                headers: { Authorization: `Bearer ${document.cookie.replace(/(?:(?:^|.*;\s*)token\s*\=\s*([^;]*).*$)|^.*$/, "$1")}` }
+              });
+              
+              setOrderSuccess(true);
+              clearCart();
+            } else {
+              alert('Payment verification failed!');
+            }
+          } catch (err) {
+            console.error('Verification error', err);
+            alert('Payment verification failed on server.');
+          }
+        },
+        prefill: {
+          name: user.fullName || "User",
+          email: user.email || "user@example.com",
+          contact: "9999999999"
+        },
+        theme: {
+          color: "var(--primary, #2ecc71)"
+        }
+      };
+
+      const paymentObject = new window.Razorpay(options);
+      paymentObject.open();
+    } catch (error) {
+      console.error('Error in Razorpay Checkout', error);
+      alert('Failed to initialize payment. Check console.');
+    } finally {
+      setPlacingOrder(false); // Enable buttons again after popup opens/closes
     }
   };
 
@@ -69,7 +182,7 @@ const Cart = () => {
                 <img src={item.product.image} alt={item.product.title} style={{ width: '100px', height: '100px', objectFit: 'cover', borderRadius: 'var(--radius-md)' }} />
                 <div style={{ flex: 1 }}>
                   <h3 style={{ fontSize: '1.1rem', fontWeight: 600, marginBottom: '0.25rem' }}>{item.product.title}</h3>
-                  <div style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '1rem' }}>${item.product.price.toFixed(2)}</div>
+                  <div style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '1rem' }}>₹{item.product.price.toFixed(2)}</div>
                   
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     <div style={{ display: 'flex', alignItems: 'center', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)', overflow: 'hidden', width: 'fit-content' }}>
@@ -83,7 +196,7 @@ const Cart = () => {
                   </div>
                 </div>
                 <div style={{ fontWeight: 700, fontSize: '1.1rem' }}>
-                  ${(item.product.price * item.quantity).toFixed(2)}
+                  ₹{(item.product.price * item.quantity).toFixed(2)}
                 </div>
               </div>
             ))}
@@ -96,19 +209,19 @@ const Cart = () => {
             
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
               <span style={{ color: 'var(--text-muted)' }}>Subtotal ({cartItems.length} items)</span>
-              <span style={{ fontWeight: 500 }}>${cartTotal.toFixed(2)}</span>
+              <span style={{ fontWeight: 500 }}>₹{cartTotal.toFixed(2)}</span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
               <span style={{ color: 'var(--text-muted)' }}>Shipping</span>
-              <span style={{ fontWeight: 500 }}>$10.00</span>
+              <span style={{ fontWeight: 500 }}>₹10.00</span>
             </div>
             
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2rem', borderTop: '1px solid var(--border)', paddingTop: '1rem', fontSize: '1.25rem', fontWeight: 700 }}>
               <span>Total</span>
-              <span>${(cartTotal + 10).toFixed(2)}</span>
+              <span>₹{(cartTotal + 10).toFixed(2)}</span>
             </div>
 
-            <form onSubmit={handleCheckout}>
+            <form>
               <h4 style={{ fontWeight: 600, marginBottom: '1rem' }}>Shipping Information</h4>
               <input type="text" placeholder="Street Address" className="form-input" style={{ width: '100%', marginBottom: '0.5rem' }} value={shippingAddress.street} onChange={e => setShippingAddress({...shippingAddress, street: e.target.value})} required />
               <input type="text" placeholder="City" className="form-input" style={{ width: '100%', marginBottom: '0.5rem' }} value={shippingAddress.city} onChange={e => setShippingAddress({...shippingAddress, city: e.target.value})} required />
@@ -117,9 +230,14 @@ const Cart = () => {
                 <input type="text" placeholder="Zip Code" className="form-input" style={{ width: '50%' }} value={shippingAddress.zipCode} onChange={e => setShippingAddress({...shippingAddress, zipCode: e.target.value})} required />
               </div>
               
-              <button type="submit" className="btn btn-primary" style={{ width: '100%', padding: '1rem', fontSize: '1.1rem' }} disabled={placingOrder}>
-                {placingOrder ? 'Processing...' : `Place Order (Cash on Delivery) - $${(cartTotal + 10).toFixed(2)}`}
-              </button>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <button type="button" onClick={handleRazorpayCheckout} className="btn btn-primary" style={{ width: '100%', padding: '1rem', fontSize: '1.1rem' }} disabled={placingOrder}>
+                  {placingOrder ? 'Processing...' : `Pay with Razorpay (₹${(cartTotal + 10).toFixed(2)})`}
+                </button>
+                <button type="button" onClick={handleCheckout} className="btn btn-outline" style={{ width: '100%', padding: '1rem', fontSize: '1.1rem' }} disabled={placingOrder}>
+                  {placingOrder ? 'Processing...' : `Cash on Delivery`}
+                </button>
+              </div>
             </form>
           </div>
         </div>

@@ -39,6 +39,15 @@ const orderSchema = new mongoose.Schema({
     type: String,
     default: 'Cash on Delivery'
   },
+  razorpayOrderId: {
+    type: String
+  },
+  razorpayPaymentId: {
+    type: String
+  },
+  razorpaySignature: {
+    type: String
+  },
   status: {
     type: String,
     enum: ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'],
