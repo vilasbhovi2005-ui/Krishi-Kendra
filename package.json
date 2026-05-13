@@ -1,0 +1,15 @@
+{
+  "name": "agricultural-hub",
+  "version": "1.0.0",
+  "description": "Agricultural E-commerce Hub",
+  "scripts": {
+    "install-all": "npm install --prefix agriHub-Backend && npm install --prefix agrihub-frontend",
+    "dev:backend": "npm run dev --prefix agriHub-Backend",
+    "dev:frontend": "npm run dev --prefix agrihub-frontend",
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "start": "npm run dev"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

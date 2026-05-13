@@ -13,7 +13,7 @@ app.use(express.urlencoded({ extended: true })); // parses form data
 
 
 
-app.use(cors({ origin: [process.env.FRONTEND_URL, 'https://krishi-kendra.vercel.app', 'http://localhost:5173'], credentials: true }));
+app.use(cors({ origin: [process.env.FRONTEND_URL, 'https://krishi-kendra.vercel.app', 'http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175'], credentials: true }));
 
 
 connectDB();
